@@ -1,18 +1,41 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div>
+    <h1>Liste des personnages</h1>
+    <v-row>
+      <v-col v-for="(personnage, index) in personnages" :key="index" sm="4">
+        <PersonnageItem v-bind:personnage="personnage" />
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import Vue from "vue";
+import IPersonnage from "@/interfaces/Personnage.interface";
+import Personnage from "@/entities/Personnage";
+import PersonnageItem from "@/components/PersonnageItem.vue";
 
-@Component({
+export default Vue.extend({
   components: {
-    HelloWorld,
+    PersonnageItem,
   },
-})
-export default class Home extends Vue {}
+  data() {
+    return {
+      personnages: [] as Array<IPersonnage>,
+    };
+  },
+  async created() {
+    const fetchPeople = await fetch(process.env.VUE_APP_API_URL_PEOPLE, {
+      method: "GET",
+    });
+    const personnagesData = await fetchPeople.json();
+
+    this.personnages = personnagesData.results.map(
+      (item: IPersonnage) => new Personnage(item)
+    );
+  },
+});
 </script>
+
+<style scoped>
+</style>
